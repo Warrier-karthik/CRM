@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL || 'https://whatsapp-bot-production-9b9c.up.railway.app/api';
+const BASE = import.meta.env.VITE_API_URL;
 
 // In-memory token store — persists across requests in the same session
 let _token = localStorage.getItem('crm_token') || '';
