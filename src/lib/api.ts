@@ -41,7 +41,7 @@ async function req(method: string, path: string, body?: any) {
 export const api = {
   // Auth
   login: async (email: string, password: string) => {
-    const res = await fetch(`${BASE}/auth/session`, {
+    const res = await fetch(`${BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
