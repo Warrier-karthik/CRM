@@ -64,6 +64,7 @@ export default function Conversations({ initialPhone }: Props) {
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [sendingTemplate, setSendingTemplate] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [loadingChats, setLoadingChats] = useState(false);
 
   useEffect(() => {
     loadChats();
@@ -86,11 +87,15 @@ export default function Conversations({ initialPhone }: Props) {
   }, [messages]);
 
   async function loadChats() {
-    try {
-      const data = await api.getChats();
-      setChats(data.chats || data || []);
-    } catch {}
+  setLoadingChats(true);
+  try {
+    const data = await api.getChats();
+    setChats(data.chats || data || []);
+  } catch {}
+  finally {
+    setLoadingChats(false);
   }
+}
 
   async function selectChat(chat: Chat) {
     setSelected(chat);
@@ -246,9 +251,14 @@ export default function Conversations({ initialPhone }: Props) {
               </div>
             </div>
           ))}
-          {filteredChats.length === 0 && (
-            <div style={{ padding: 20, textAlign: 'center', color: '#9ca3af', fontSize: 12 }}>No conversations</div>
-          )}
+          {loadingChats ? (
+            <div style={{ padding: 20, textAlign: 'center', color: '#9ca3af', fontSize: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+            <Loader2 size={18} style={{ animation: 'spin 1s linear infinite', color: '#10b981' }} />
+            <span>Loading conversations...</span>
+          </div>
+        ) : filteredChats.length === 0 ? (
+          <div style={{ padding: 20, textAlign: 'center', color: '#9ca3af', fontSize: 12 }}>No conversations</div>
+        ) : null}
         </div>
       </div>
 
@@ -467,10 +477,10 @@ export default function Conversations({ initialPhone }: Props) {
             </div>
           )}
 
-          {contactDetail.lead_source && (
+          {contactDetail.source && (
             <div>
               <label className="label">Lead Source</label>
-              <p style={{ margin: 0, fontSize: 12, color: '#6b7280', padding: '6px 10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 7 }}>{contactDetail.lead_source}</p>
+              <p style={{ margin: 0, fontSize: 12, color: '#6b7280', padding: '6px 10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 7 }}>{contactDetail.source}</p>
             </div>
           )}
         </div>

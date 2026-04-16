@@ -43,7 +43,7 @@ export default function Automation() {
     setLoading(true);
     try {
       const data = await api.getAutomations();
-      setAutomations(Array.isArray(data) ? data : (data.responses || []));
+      setAutomations(Array.isArray(data.data) ? data.data : (data.responses || []));
     } catch { setAutomations([]); }
     finally { setLoading(false); }
   }

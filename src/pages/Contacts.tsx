@@ -26,19 +26,20 @@ export default function Contacts({ onOpenChat }: Props) {
   const [filterStatus, setFilterStatus] = useState('');
 
   async function load() {
-    setLoading(true);
-    try {
-      const params: any = {};
-      if (filterTemp) params.temperature = filterTemp;
-      if (filterStatus) params.status = filterStatus;
-      const data = await api.getUsers(params);
-      setContacts(data.users || data || []);
-    } catch {
-      setContacts([]);
-    } finally {
-      setLoading(false);
-    }
+  setLoading(true);
+  try {
+    const params: any = {};
+    if (filterTemp) params.temperature = filterTemp;
+    if (filterStatus) params.status = filterStatus;
+    const data = await api.getUsers(params);
+    const raw = data?.users ?? data;
+    setContacts(Array.isArray(raw) ? raw : []);
+  } catch {
+    setContacts([]);
+  } finally {
+    setLoading(false);
   }
+}
 
   useEffect(() => { load(); }, [filterTemp, filterStatus]);
 
