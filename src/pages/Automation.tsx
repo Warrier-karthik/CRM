@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Plus, Trash2, Edit2, X, Upload, Link, Check, Loader2, ChevronDown } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Upload, Link, Check, Loader2} from 'lucide-react';
 import { api } from '../lib/api';
 
 interface Button { id: string; title: string; reply?: string; description?: string; }
