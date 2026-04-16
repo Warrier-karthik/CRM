@@ -65,7 +65,7 @@ export default function Broadcast() {
       : !!mediaUrl.trim();
 
   return (
-    <div style={{ padding: '28px', maxWidth: 680 }}>
+    <div style={{ padding: '28px', maxWidth: '100%' }}>
       <div className="page-header">
         <h1 className="page-title">Broadcast</h1>
         <p className="page-sub">Send messages in bulk to your segments or all contacts</p>
