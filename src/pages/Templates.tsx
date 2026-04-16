@@ -145,7 +145,7 @@ export default function Templates() {
           <p style={{ margin: '6px 0 0', fontSize: 12, color: '#9ca3af' }}>Create one or sync from Meta to get started</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 3fr))', gap: 20 }}>
           {templates.map(t => (
             <div key={t.id} className="card" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12 }}>
               {/* Header */}

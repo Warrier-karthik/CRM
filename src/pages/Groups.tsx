@@ -125,7 +125,7 @@ export default function Groups({ onOpenChat }: Props) {
   // Group list view
   if (!selected) {
     return (
-      <div style={{ padding: '28px', maxWidth: 900 }}>
+      <div style={{ padding: '28px', maxWidth: '100%' }}>
         <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <h1 className="page-title">Groups</h1>
@@ -210,7 +210,7 @@ export default function Groups({ onOpenChat }: Props) {
 
   // Group detail — contact table
   return (
-    <div style={{ padding: '28px', maxWidth: 1000 }}>
+    <div style={{ padding: '28px', maxWidth: '100%' }}>
       {/* Header */}
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
