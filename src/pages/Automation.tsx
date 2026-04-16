@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { Plus, Trash2, Edit2, X, Upload, Link, Check, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Upload, Link, Check, Loader2, ChevronDown } from 'lucide-react';
 import { api } from '../lib/api';
 
-interface Button { id: string; title: string; reply: string; }
+interface Button { id: string; title: string; reply?: string; description?: string; }
+
 interface Automation {
   id: string;
   keyword: string;
@@ -11,6 +12,7 @@ interface Automation {
   type?: string;
   media_url?: string;
   buttons?: Button[];
+  list_title?: string;
   enabled: boolean;
 }
 
@@ -21,6 +23,7 @@ const EMPTY: Omit<Automation, 'id'> & { altKeywords: string; mediaInputMode: 'ur
   type: 'text',
   media_url: '',
   buttons: [],
+  list_title: '',
   enabled: true,
   mediaInputMode: 'url',
 };
@@ -63,6 +66,7 @@ export default function Automation() {
       type: a.type || 'text',
       media_url: a.media_url || '',
       buttons: a.buttons || [],
+      list_title: a.list_title || '',
       enabled: a.enabled,
       mediaInputMode: 'url',
     });
@@ -126,7 +130,8 @@ export default function Automation() {
   }
 
   function addButton() {
-    if ((form.buttons?.length || 0) >= 3) return;
+    const maxButtons = form.type === 'list' ? 10 : 3;
+    if ((form.buttons?.length || 0) >= maxButtons) return;
     setForm(p => ({ ...p, buttons: [...(p.buttons || []), { id: '', title: '', reply: '' }] }));
   }
 
@@ -142,15 +147,19 @@ export default function Automation() {
     setForm(p => ({ ...p, buttons: (p.buttons || []).filter((_, idx) => idx !== i) }));
   }
 
+ 
+
+ 
+
   const RESPONSE_TYPES = [
     { value: 'text', label: 'Text only' },
     { value: 'image', label: 'Image + Text' },
     { value: 'video', label: 'Video + Text' },
-    { value: 'menu', label: 'Menu (buttons)' },
+    { value: 'list', label: 'Menu (buttons)' },
   ];
 
   return (
-    <div style={{ padding: '28px', maxWidth: 900 }}>
+    <div style={{ padding: '28px', maxWidth: '100%' }}>
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1 className="page-title">Automation</h1>
@@ -306,38 +315,76 @@ export default function Automation() {
 
               {/* Message text */}
               <div>
-                <label className="label">{form.type === 'menu' ? 'Menu Message' : 'Response Message'}</label>
+                <label className="label">Response Message</label>
                 <textarea className="input-field" style={{ resize: 'vertical', minHeight: 80 }}
                   placeholder="Type the bot's response..." value={form.message}
                   onChange={e => setForm(p => ({ ...p, message: e.target.value }))} />
               </div>
 
-              {/* Buttons */}
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <label className="label" style={{ margin: 0 }}>
-                    Interactive Buttons <span style={{ color: '#9ca3af', fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(max 3)</span>
-                  </label>
-                  {(form.buttons?.length || 0) < 3 && (
-                    <button onClick={addButton} style={{ background: 'none', border: '1px solid #e5e7eb', borderRadius: 6, padding: '3px 8px', fontSize: 11, color: '#6b7280', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'DM Sans, sans-serif' }}>
-                      <Plus size={11} /> Add
-                    </button>
+              {/* Menu specific: List title */}
+              {form.type === 'list' && (
+                <div>
+                  <label className="label">List Menu Button Text</label>
+                  <input className="input-field" placeholder="e.g. View Options, Select Service" value={form.list_title} onChange={e => setForm(p => ({ ...p, list_title: e.target.value }))} />
+                </div>
+              )}
+
+              {/* List Rows (only for menu type) */}
+              {form.type === 'list' && (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <label className="label" style={{ margin: 0 }}>
+                      List Rows <span style={{ color: '#9ca3af', fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(max 10)</span>
+                    </label>
+                    {(form.buttons?.length || 0) < 10 && (
+                      <button onClick={addButton} style={{ background: 'none', border: '1px solid #e5e7eb', borderRadius: 6, padding: '3px 8px', fontSize: 11, color: '#6b7280', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'DM Sans, sans-serif' }}>
+                        <Plus size={11} /> Add Row
+                      </button>
+                    )}
+                  </div>
+                  {(form.buttons || []).map((row, i) => (
+                    <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12, padding: 10, background: '#f9fafb', borderRadius: 8, border: '1px solid #e5e7eb' }}>
+                      <input className="input-field" style={{ fontSize: 12 }} placeholder="Row Title (required)" value={row.title} onChange={e => updateButton(i, 'title', e.target.value)} />
+                      <input className="input-field" style={{ fontSize: 12 }} placeholder="ID / Trigger" value={row.id} onChange={e => updateButton(i, 'id', e.target.value)} />
+                      <input className="input-field" style={{ fontSize: 12 }} placeholder="Description (optional)" value={row.description || ''} onChange={e => updateButton(i, 'description', e.target.value)} />
+                      <button onClick={() => removeButton(i)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px', display: 'flex', justifyContent: 'flex-end', fontSize: 12, fontWeight: 600 }}>
+                        <X size={14} /> Remove
+                      </button>
+                    </div>
+                  ))}
+                  {(form.buttons || []).length === 0 && (
+                    <p style={{ margin: 0, fontSize: 12, color: '#9ca3af' }}>No list rows added</p>
                   )}
                 </div>
-                {(form.buttons || []).map((btn, i) => (
-                  <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 8, marginBottom: 8, alignItems: 'center' }}>
-                    <input className="input-field" style={{ fontSize: 12 }} placeholder="ID" value={btn.id} onChange={e => updateButton(i, 'id', e.target.value)} />
-                    <input className="input-field" style={{ fontSize: 12 }} placeholder="Title" value={btn.title} onChange={e => updateButton(i, 'title', e.target.value)} />
-                    <input className="input-field" style={{ fontSize: 12 }} placeholder="Reply text" value={btn.reply} onChange={e => updateButton(i, 'reply', e.target.value)} />
-                    <button onClick={() => removeButton(i)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px', display: 'flex' }}>
-                      <X size={14} />
-                    </button>
+              )}
+
+              {/* Interactive Buttons (only for non-menu types) */}
+              {form.type !== 'list' && (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <label className="label" style={{ margin: 0 }}>
+                      Interactive Buttons <span style={{ color: '#9ca3af', fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(max 3)</span>
+                    </label>
+                    {(form.buttons?.length || 0) < 3 && (
+                      <button onClick={addButton} style={{ background: 'none', border: '1px solid #e5e7eb', borderRadius: 6, padding: '3px 8px', fontSize: 11, color: '#6b7280', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'DM Sans, sans-serif' }}>
+                        <Plus size={11} /> Add
+                      </button>
+                    )}
                   </div>
-                ))}
-                {(form.buttons || []).length === 0 && (
-                  <p style={{ margin: 0, fontSize: 12, color: '#9ca3af' }}>No buttons added</p>
-                )}
-              </div>
+                  {(form.buttons || []).map((btn, i) => (
+                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                      <input className="input-field" style={{ fontSize: 12 }} placeholder="Button Title" value={btn.title} onChange={e => updateButton(i, 'title', e.target.value)} />
+                      <input className="input-field" style={{ fontSize: 12 }} placeholder="ID / Trigger" value={btn.id} onChange={e => updateButton(i, 'id', e.target.value)} />
+                      <button onClick={() => removeButton(i)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px', display: 'flex', justifyContent: 'flex-end' }}>
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                  {(form.buttons || []).length === 0 && (
+                    <p style={{ margin: 0, fontSize: 12, color: '#9ca3af' }}>No buttons added</p>
+                  )}
+                </div>
+              )}
 
               {/* Enabled toggle */}
               <button

@@ -80,7 +80,7 @@ export default function Contacts({ onOpenChat }: Props) {
   }
 
   return (
-    <div style={{ padding: '28px', maxWidth: 1100 }}>
+    <div style={{ padding: '28px', maxWidth: '100%' }}>
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1 className="page-title">Contacts</h1>
