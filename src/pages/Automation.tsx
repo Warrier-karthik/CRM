@@ -86,9 +86,13 @@ export default function Automation() {
         enabled: form.enabled,
       };
       if (form.type !== 'text') body.media_url = form.media_url;
+      if (form.type === 'list') body.list_title = form.list_title;
+      
       if (form.buttons && form.buttons.length > 0) body.buttons = form.buttons;
 
       if (editing) {
+        console.log(body)
+        console.log(editing.id)
         await api.updateAutomation(editing.id, body);
       } else {
         await api.createAutomation(body);
